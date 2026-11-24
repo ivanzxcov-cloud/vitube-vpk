@@ -17,12 +17,14 @@ jobs:
       image: vitasdk/vitasdk:latest
 
     steps:
+      
       - name: Install build tools
         run: |
-          apk add --no-cache \
+          apt-get update
+          DEBIAN_FRONTEND=noninteractive apt-get install -y \
             bash git cmake make python3 \
-            curl wget tar xz bzip2 build-base
-
+            curl wget tar xz-utils bzip2 build-essential
+            
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
