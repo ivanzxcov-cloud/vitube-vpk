@@ -1,0 +1,64 @@
+
+name: Build ViTube VPK
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container:
+      image: vitasdk/vitasdk:latest
+
+    steps:
+      - name: Install build tools
+        run: |
+          apk add --no-cache \
+            bash git cmake make python3 \
+            curl wget tar xz bzip2 build-base
+
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Set VitaSDK
+        run: |
+          echo "VITASDK=/usr/local/vitasdk" >> "$GITHUB_ENV"
+          echo "/usr/local/vitasdk/bin" >> "$GITHUB_PATH"
+
+      - name: Build FFmpeg
+        run: |
+          cd external/vita-hw-decoder
+          chmod +x tools/build-ffmpeg.sh
+          ./tools/build-ffmpeg.sh
+
+      - name: Build curl
+        run: |
+          cd external/vita-https
+          chmod +x tools/build-curl-mbedtls.sh
+          ./tools/build-curl-mbedtls.sh
+
+      - name: Configure ViTube
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_BUILD_TYPE=Release
+
+      - name: Compile ViTube
+        run: |
+          cmake --build build --parallel 2
+
+      - name: Upload VPK
+        uses: actions/upload-artifact@v4
+        with:
+          name: ViTube-VPK
+          path: build/ViTube.vpk
+          if-no-files-found: error
+          
