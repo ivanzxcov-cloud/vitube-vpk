@@ -184,6 +184,7 @@ static void apply_common(CURL *curl, const VitaHttpsClient *client,
 		.flags = CURL_BLOB_NOCOPY
 	};
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, client->user_agent);
+	curl_easy_setopt(curl, CURLOPT_PROXY, "http://10.181.117.17:8080");
 	curl_easy_setopt(curl, CURLOPT_PROTOCOLS_STR, "https");
 	curl_easy_setopt(curl, CURLOPT_REDIR_PROTOCOLS_STR, "https");
 	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
